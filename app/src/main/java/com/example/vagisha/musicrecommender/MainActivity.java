@@ -74,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.favor:
                 FactorCalculator.favourProb();
+            case R.id.recent :
+                RecentlyPlayedModel.LogAllRecentlyPlayed();
+            case R.id.adjust_weights :
+                FactorCalculator.adjustWeightsByRecentPlayings();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -221,6 +225,10 @@ public class MainActivity extends AppCompatActivity {
                                     double percentagePlayed = durationPlayed.doubleValue() / totalDuration.doubleValue();
                                     SongModel.updateFavorScores(currentlyPlayingSong,percentagePlayed);
                                     SongModel.incrementTimesPlayed(currentlyPlayingSong);
+
+
+
+
                                     Toast.makeText(MainActivity.this, "Percentage Played : " + String.valueOf(percentagePlayed), Toast.LENGTH_SHORT).show();
                                 }
 
@@ -235,8 +243,17 @@ public class MainActivity extends AppCompatActivity {
                             mMediaPlayer.setDataSource(path);
                             mMediaPlayer.prepare();
                             mMediaPlayer.start();
+
+                            double favorProb = FactorCalculator.getFavorProb(SongModel.returnTimesPlayed(currentlyPlayingSong),SongModel.returnMeanPercentagePlayed(currentlyPlayingSong));
+                            double freshnessProb = FactorCalculator.getFreshnessProb(SongModel.returnTimesPlayed(currentlyPlayingSong),SongModel.returnLastPlayed(currentlyPlayingSong));
+                            Log.i("Consi",currentlyPlayingSong +" : "+String.valueOf(SongModel.returnTimesPlayed(currentlyPlayingSong))+ ": "+ SongModel.getStringFromDate(SongModel.returnLastPlayed(currentlyPlayingSong))+" ; "+String.valueOf(freshnessProb));
                             String currentDateandTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                             SongModel.updateTimeOfLastPlayed(songList.get(position).songname,currentDateandTime);
+
+
+                            RecentlyPlayedModel recentlyPlayedModel = new RecentlyPlayedModel(songList.get(position).songname,new Date(),favorProb,freshnessProb);
+                            recentlyPlayedModel.save();
+
                             Toast.makeText(MainActivity.this,"\n"+currentDateandTime,Toast.LENGTH_SHORT).show();
                             Log.i("Song","Playing :"+songList.get(position).songname);
 

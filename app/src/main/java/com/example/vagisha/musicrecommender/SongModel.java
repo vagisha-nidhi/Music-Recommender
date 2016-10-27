@@ -125,23 +125,28 @@ public class SongModel extends Model {
     }
 
     public static double getSumAvgFavorScore(){
-     //   try {
-            Cursor c = ActiveAndroid.getDatabase().rawQuery("SELECT SUM("+avgFavorScoreColumnName+") as total FROM SongInfoTable " , null);
+
+            Cursor c = ActiveAndroid.getDatabase().rawQuery("SELECT AVG("+avgFavorScoreColumnName+") as total FROM SongInfoTable " , null);
             c.moveToFirst();
-
             double total = c.getDouble(c.getColumnIndex("total"));
-
             c.close();
-
             return total;
-       // }catch (Exception e){
-         //   e.printStackTrace();
-        //}
-
-      // return 0.0;
-         //new Select("sum(avgFavorScore)").from(SongModel.class).execute();
-
 
     }
+
+    public static long returnTimesPlayed(String songName){
+        SongModel model = selectSong("songName", songName);
+        return model.timesPlayed;
+    }
+    public static double returnMeanPercentagePlayed(String songName){
+        SongModel model = selectSong("songName", songName);
+        return model.avgFavorScore;
+    }
+    public static Date returnLastPlayed(String songName){
+        SongModel model = selectSong("songName", songName);
+        return model.timestamp;
+    }
+
+
 
 }

@@ -3,9 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/fresh"
         android:title="RF"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
     <item android:id="@+id/favor"
         android:title="Favor"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
+    <item android:id="@+id/recent"
+        android:title="Recently Played"
+        app:showAsAction="never"/>
+    <item android:id="@+id/adjust_weights"
+        android:title="Adjust Weights"
+        app:showAsAction="never"/>
+
 
 </menu>

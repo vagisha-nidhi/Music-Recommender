@@ -13,6 +13,7 @@ import java.util.List;
 public class FactorCalculator {
 
 
+    public double[] factorWeights = new double[2];
 
     public static void freshnessProb(){
         List<SongModel> allSongs = SongModel.getAll();
@@ -38,15 +39,34 @@ public class FactorCalculator {
         }
 
     }
+    public static double getFreshnessProb(long timesPlayed, Date lastPlayed){
+        long periodFromLast = getDifferenceBetweenDates(new Date(),lastPlayed);
+        double factor;
+        if(timesPlayed != 0) {
+            factor = -(periodFromLast / timesPlayed)/100000.0;
+        }
+        else {
+            factor = Long.MIN_VALUE;
+        }
+        //Normalize factor and take reciprocal and then return it;
+        //Log.i("Consi", String.valueOf(1.0/Math.exp(factor)));
+        return 1.0/Math.exp(factor);
+    }
+
+    public void initializeWeights(){
+
+        factorWeights[0] = 1.0;
+        factorWeights[1] = 1.0;
+    }
 
     public static void favourProb(){
         List<SongModel> allSongs = SongModel.getAll();
         ArrayList<Double> favorFactorArrayList = new ArrayList<>();
-        double sumAvgScore = SongModel.getSumAvgFavorScore();
-        double meanOfAllSongs = sumAvgScore/allSongs.size();
+        double meanOfAllSongs = SongModel.getSumAvgFavorScore();
+       // double meanOfAllSongs = sumAvgScore/allSongs.size();
         //m's value to be experimented and checked
         int m = 5;
-        Log.i("Fav - mean",String.valueOf(sumAvgScore));
+        Log.i("Fav - mean",String.valueOf(meanOfAllSongs));
 
         for(int i=0 ; i<allSongs.size() ; i++){
             Long timesPlayed = allSongs.get(i).timesPlayed;
@@ -60,7 +80,49 @@ public class FactorCalculator {
 
     }
 
-    public static void adjustWeights(){
+    public static double getFavorProb(Long timesPlayed, double meanPercentagePlayed){
+        int m = 5;
+        double meanOfAllSongs = SongModel.getSumAvgFavorScore();
+        double prob = (timesPlayed.doubleValue()/(timesPlayed.doubleValue()+m))*meanPercentagePlayed + (m/(m+timesPlayed.doubleValue()))*meanOfAllSongs;
+        return prob;
+
+    }
+
+
+
+    public static void adjustWeightsByRecentPlayings(){
+        List<RecentlyPlayedModel> allRecentlyPlayedSongs = RecentlyPlayedModel.getAll();
+        //Current factor weights is W
+        //We change the factor weights by looking at all the recent Playings.
+        //For each playing and its next playing, we check what factor has contributed the most and what has contributed least
+        //Initializing Contribution of factors
+        int Ffreshness = 0;
+        int Ffavor = 0;
+
+        for(int i=0 ; i<allRecentlyPlayedSongs.size()-1; i++){
+            RecentlyPlayedModel firstSong = allRecentlyPlayedSongs.get(i);
+            RecentlyPlayedModel secondSong = allRecentlyPlayedSongs.get(i+1);
+            double favorProbFirstSong = firstSong.favorFactor;
+            double favorProbSecondSong = secondSong.favorFactor;
+            double freshnessProbFirstSong = firstSong.freshnessFactor;
+            double freshnessProbSecondSong = secondSong.freshnessFactor;
+
+            double differenceFavor = favorProbSecondSong - favorProbFirstSong;
+            double differenceFreshness = freshnessProbSecondSong - freshnessProbFirstSong;
+
+            if(differenceFavor>differenceFreshness){
+                Ffavor = Ffavor+1;
+                Ffreshness = Ffreshness-1;
+            }
+            else{
+                Ffreshness = Ffreshness + 1;
+                Ffavor = Ffavor-1;
+            }
+
+        }
+
+        Log.i("Contri : ", String.valueOf(Ffavor) + " : " + String.valueOf(Ffreshness));
+
 
     }
 
