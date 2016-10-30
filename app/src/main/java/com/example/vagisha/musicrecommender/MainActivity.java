@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     String DB_NAME = "SongInfo.db";
     String DB_PATH = "";
     String currentlyPlayingSong = "";
+    FactorCalculator calculator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ActiveAndroid.initialize(this);
         init_phone_music_grid();
+
+        calculator = new FactorCalculator();
+        calculator.initializeWeights();
     }
 
     @Override
@@ -73,11 +77,12 @@ public class MainActivity extends AppCompatActivity {
                 FactorCalculator.freshnessProb();
                 return true;
             case R.id.favor:
-                FactorCalculator.favourProb();
+                Log.i("Calc", String.valueOf((Double.MAX_VALUE)));
+                Log.i("Calc", String.valueOf((1.0/Math.exp(-(22*60*60*100)/12169.0))/Double.MAX_VALUE));
             case R.id.recent :
                 RecentlyPlayedModel.LogAllRecentlyPlayed();
             case R.id.adjust_weights :
-                FactorCalculator.adjustWeightsByRecentPlayings();
+                calculator.adjustWeightsByRecentPlayings();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
