@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
  * @author vagisha
  */
 public class GMModel {
-    public String fileName = "samples_add.txt";
+    public String fileName = "samples_add_time.txt";
     public int NumOfDataPoints = CountTotalDataPointsInFile(fileName);
 	public double[] MainDataSet;
 	
@@ -25,6 +25,9 @@ public class GMModel {
 	
 	public GMModel(){                                      // Constructor
 		MainDataSet = readFile(fileName, NumOfDataPoints);
+                
+                //MainDataSet[0] = 4.3;
+                //MainDataSet[1] = 
 		Pi_k  = new double[3];        
 		Mu_k  = new double[3];
 		Sigma_k = new double[3];
@@ -46,6 +49,7 @@ public class GMModel {
 						ProbOfXn = ProbOfXn + Pi_k[j]*GaussianFunction(MainDataSet[i], Mu_k[j], Sigma_k[j]);  		
 					}	
 					LogLikelihood = LogLikelihood + log2(ProbOfXn);
+                                        
 				}
 				
 				// E- Step   Calculating Responsibilities...
@@ -60,7 +64,7 @@ public class GMModel {
 					Rspb[i][0] = Rspb[i][0]/ProbOfXn;
 					Rspb[i][1] = Rspb[i][1]/ProbOfXn;
 					Rspb[i][2] = Rspb[i][2]/ProbOfXn;
-                                       // Rspb[i][3] = Rspb[i][3]/ProbOfXn;
+                                //        Rspb[i][3] = Rspb[i][3]/ProbOfXn;
 					
 				}
 							
@@ -68,7 +72,7 @@ public class GMModel {
 				
 				double[] N_k = new double[3];
 	            
-				for(int k=0; k<3; k++){             // Calculating N_k's
+				for(int k=0; k<3 ; k++){             // Calculating N_k's
 					for(int n=0; n< MainDataSet.length; n++){
 						N_k[k] = N_k[k] + Rspb[n][k];
 					}
@@ -144,7 +148,7 @@ public class GMModel {
     	DecimalFormat df = new DecimalFormat("#.#######");
     	
     	builder.append("Project 3: EM Algorithm & Gaussian Mixture Model \n\n");
-    	builder.append("4 Component Mixture\n");
+    	builder.append("3 Component Mixture\n");
     	builder.append("Total DataPoints: "+ NumOfDataPoints + "\n\n");
     	
     	builder.append("Best Set of Parameters For Threshold = " + Threshold[i]+"\n\n");
@@ -175,15 +179,15 @@ public class GMModel {
 		Pi_k[0] = 0.33;                              
 		Pi_k[1] = 0.33;                              
 		Pi_k[2] = 0.34;   
-                Pi_k[2] = 0.35;   
+                //Pi_k[3] = 0.35;   
 		
-		Mu_k[0] = 2;                               
-		Mu_k[1] = 5;                               
-		Mu_k[2] = 9;  
-                Mu_k[2] = 11;  
+		Mu_k[0] = 1;                               
+		Mu_k[1] = 8;                               
+		Mu_k[2] = 18;  
+                //Mu_k[3] = 2;  
 		
-		Sigma_k[0] = 5;                             
-		Sigma_k[2] = 3;
+		Sigma_k[0] = 3;                             
+		Sigma_k[2] = 4;
 		
 		if(index == 0){
 		  Sigma_k[1] =  3;  
@@ -203,13 +207,16 @@ public class GMModel {
 	    TextFileInput tfi = new TextFileInput(fileName);
 		String line = tfi.readLine(); 
 	    int count=0;
+            System.out.println("Okay till 209");
 		while(line!=null)
 		{
+                    
+                    System.out.println("Reading line : " +line);
 			alldatapoints[count] =  Double.parseDouble(line);
 			 count++;      
 			 line=tfi.readLine();
 		}
-		
+		System.out.println("Okay till 216");
 		return alldatapoints;        
   	}// Read File
 	
@@ -222,7 +229,7 @@ public class GMModel {
 			{	line=tfi.readLine();
 				CountLine++;
 			}
-		    
+		    System.out.println("Countline : "+ String.valueOf(CountLine));
 			return CountLine;                                         
 	 }
 	
@@ -243,6 +250,19 @@ public class GMModel {
 		 }	
 		return num;	
 	}
+    
+    public void getProb(){
+    
+        double x_n = 16;
+        
+        for(int j=0; j<3 ; j++){
+        
+            double prob = Math.pow(2*3.14159265*Sigma_k[j] ,-0.5)*Math.exp(-(Math.pow(x_n-Mu_k[j], 2))/(2*Sigma_k[j])); 
+            System.out.println(String.valueOf(prob));
+        
+        }
+    
+    }
 	
     
 }

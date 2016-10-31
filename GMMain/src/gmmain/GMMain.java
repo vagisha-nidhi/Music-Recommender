@@ -21,7 +21,8 @@ public class GMMain {
 		 
 		 for(int i=0; i< Gmm.Threshold.length; i++){
 		    Gmm.GaussianMixtureModel(i);             // To build GM Model
-		    Gmm.OutputFinalReport(i);                // To Output Final Report
+		    Gmm.OutputFinalReport(i);  // To Output Final Report
+                    Gmm.getProb();
 		    Gmm.ResetValues();                       // Resetting Value for Next Threshold GMM
 		 }
     }

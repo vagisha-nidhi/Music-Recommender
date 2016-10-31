@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -77,8 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 FactorCalculator.freshnessProb();
                 return true;
             case R.id.favor:
-                Log.i("Calc", String.valueOf((Double.MAX_VALUE)));
-                Log.i("Calc", String.valueOf((1.0/Math.exp(-(22*60*60*100)/12169.0))/Double.MAX_VALUE));
+               // Log.i("Calc", String.valueOf((Double.MAX_VALUE)));
+                //Log.i("Calc", String.valueOf((1.0/Math.exp(-(22*60*60*100)/12169.0))/Double.MAX_VALUE));
+                getTopSongs();
             case R.id.recent :
                 RecentlyPlayedModel.LogAllRecentlyPlayed();
             case R.id.adjust_weights :
@@ -88,6 +91,34 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private void getTopSongs(){
+        List<SongModel> allSongs = SongModel.getAll();
+        double weightFavor = calculator.factorWeights[0];
+        double weightFreshness = calculator.factorWeights[1];
+        ArrayList<SongProbabilities> songProbabilities = new ArrayList<>();
+
+        for(int i=0; i<allSongs.size() ; i++){
+            double favorProb = FactorCalculator.getFavorProb(SongModel.returnTimesPlayed(allSongs.get(i).songName),SongModel.returnMeanPercentagePlayed(allSongs.get(i).songName));
+            double freshnessProb = FactorCalculator.getFreshnessProb(SongModel.returnTimesPlayed(allSongs.get(i).songName),SongModel.returnLastPlayed(allSongs.get(i).songName));
+            double finalProb = weightFavor*favorProb + weightFreshness*freshnessProb;
+            SongProbabilities songProbabilities1 = new SongProbabilities();
+            songProbabilities1.name = allSongs.get(i).songName;
+            songProbabilities1.prob = finalProb;
+            songProbabilities.add(songProbabilities1);
+
+            Log.i("Prob", songProbabilities1.name + ": "+ String.valueOf(freshnessProb)+ ":"+String.valueOf(favorProb)+":"+String.valueOf(songProbabilities1.prob));
+
+        }
+
+        Collections.sort(songProbabilities,new MySongComp());
+        for (int i=0; i<10 ; i++){
+            Log.i("Top 10 : ",songProbabilities.get(i).name);
+        }
+
+
+    }
+
 
     private void init_phone_music_grid() {
 
@@ -322,5 +353,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    class MySongComp implements Comparator<SongProbabilities> {
+
+        @Override
+        public int compare(SongProbabilities s1, SongProbabilities s2) {
+            if(s1.prob < s2.prob){
+                return 1;
+            } else {
+                return -1;
+            }
+        }
     }
 }

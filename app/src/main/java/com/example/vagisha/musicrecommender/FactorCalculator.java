@@ -13,7 +13,7 @@ import java.util.List;
 public class FactorCalculator {
 
 
-    private static double[] factorWeights = new double[2];
+    public static double[] factorWeights = new double[2];
 
     public static void freshnessProb(){
         List<SongModel> allSongs = SongModel.getAll();

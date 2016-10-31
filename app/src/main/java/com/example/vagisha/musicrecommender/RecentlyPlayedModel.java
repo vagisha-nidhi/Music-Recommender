@@ -72,4 +72,6 @@ public class RecentlyPlayedModel extends Model {
             Log.i("Recent : ", recentSongs.get(i).songName);
         }
     }
+
+
 }
