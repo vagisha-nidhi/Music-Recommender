@@ -4,10 +4,7 @@ import sun.rmi.runtime.Log;
 
 import javax.swing.text.html.HTMLDocument;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by vagisha on 2/11/16.
@@ -25,8 +22,11 @@ public class TimePattern {
           System.out.println(String.valueOf(playingHistories.get(i).timePlayed.toSecondOfDay()));
         }
 
-        Map<String,Double> probMap = new HashMap<>();
-        probMap = generateWeights(playingHistories);
+        Map<String,Double> probMap1 = new HashMap<>();
+        probMap1 = generateWeights(playingHistories);
+
+        Map<String,Double> probMap2 = new HashMap<>();
+        probMap2 = generateWeights2(playingHistories);
 
     }
 
@@ -62,6 +62,59 @@ public class TimePattern {
 
         return generateProbFromWeights(weightMap);
 
+    }
+
+    public static Map<String,Double> generateWeights2(ArrayList<PlayingHistory> playingHistories){
+        HashMap<String,Double> weightMap = new HashMap<>();
+        HashMap<String,Integer> indexMap = new HashMap<>();
+        LocalTime currentTime = LocalTime.now();
+
+        ArrayList<SongAndTimeDiff> songAndTimeDiffs = new ArrayList<>();
+
+        for (int i=0; i<playingHistories.size(); i++){
+            String songName = playingHistories.get(i).name;
+            int timeDifference = getTimeDifference(playingHistories.get(i).timePlayed,currentTime);
+
+            SongAndTimeDiff obj = new SongAndTimeDiff();
+            obj.songName = songName;
+            obj.timeDiff = timeDifference;
+
+            songAndTimeDiffs.add(obj);
+        }
+
+        Collections.sort(songAndTimeDiffs,new MySongComp());
+
+        int index = 0;
+        for(int i=0; i<songAndTimeDiffs.size() ; i++){
+            String songName = songAndTimeDiffs.get(i).songName;
+
+            if(indexMap.get(songName) == null){
+                indexMap.put(songName,index);
+                index++;
+            }
+
+        }
+
+        for (int i=0; i<songAndTimeDiffs.size() ; i++){
+            String songName = songAndTimeDiffs.get(i).songName;
+            int divIndex = indexMap.get(songName);
+            int timeDiff = songAndTimeDiffs.get(i).timeDiff;
+            Double weight = (1.0/timeDiff)/Math.pow(2.0,divIndex);
+            System.out.println(songName + ":"+ String.valueOf(divIndex) + ": " + weight);
+
+            if(weightMap.get(songName) == null){
+                weightMap.put(songName,weight);
+                System.out.println(String.valueOf(weight));
+            }
+            else {
+                Double value = weightMap.get(songName);
+                weightMap.put(songName,value+weight);
+                System.out.println(String.valueOf(value)+":"+String.valueOf(weight)+":" +String.valueOf(value+weight));
+            }
+        }
+
+
+        return generateProbFromWeights(weightMap);
     }
 
     public static Map<String,Double> generateProbFromWeights(HashMap<String,Double> weightMap){
@@ -137,4 +190,20 @@ public class TimePattern {
         return playingHistories;
 
     }
+
+
+}
+
+class MySongComp implements Comparator<SongAndTimeDiff> {
+
+    @Override
+    public int compare(SongAndTimeDiff s1, SongAndTimeDiff s2) {
+        if(s1.timeDiff > s2.timeDiff){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+
 }
